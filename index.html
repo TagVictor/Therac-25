@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Therac-25 · Quiz de Perguntas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e6df;
+    --muted: #7a7870;
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.08);
+    --green-border: rgba(74,222,128,0.2);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.08);
+    --red-border: rgba(248,113,113,0.2);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.08);
+    --purple-border: rgba(167,139,250,0.2);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.08);
+    --amber-border: rgba(251,191,36,0.2);
+    --accent: #4ade80;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID NOISE BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,222,128,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,222,128,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* GLOW TOP */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(74,222,128,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 48px;
+    text-align: center;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--green-border);
+    background: var(--green-bg);
+    color: var(--green);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .chip::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1 span {
+    color: var(--green);
+    position: relative;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 440px;
+    margin: 0 auto 32px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .meta-row span { display: flex; align-items: center; gap: 6px; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    margin-top: 36px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-label.green { color: var(--green); }
+  .section-label.red   { color: var(--red); }
+  .section-label.purple{ color: var(--purple); }
+  .section-label.amber { color: var(--amber); }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+  .card.green { border-left: 3px solid var(--green); }
+  .card.red   { border-left: 3px solid var(--red); }
+  .card.purple{ border-left: 3px solid var(--purple); }
+  .card.amber { border-left: 3px solid var(--amber); }
+
+  .q-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .q-badge {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .q-badge.green  { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+  .q-badge.red    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
+  .q-badge.purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+  .q-badge.amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+
+  .q-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* REVEAL BUTTON */
+  .reveal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    width: 100%;
+  }
+
+  .reveal-btn:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .reveal-btn.open { color: var(--text); border-color: rgba(255,255,255,0.12); }
+
+  .btn-arrow {
+    margin-left: auto;
+    transition: transform 0.25s;
+    opacity: 0.5;
+  }
+
+  .reveal-btn.open .btn-arrow { transform: rotate(90deg); opacity: 1; }
+
+  /* ANSWER */
+  .answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+    opacity: 0;
+  }
+
+  .answer.open {
+    max-height: 300px;
+    opacity: 1;
+  }
+
+  .answer-inner {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: rgba(232,230,223,0.75);
+    line-height: 1.65;
+    border-left: 2px solid rgba(255,255,255,0.06);
+  }
+
+  .answer-inner strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 48px 0 60px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  footer a {
+    color: var(--green);
+    text-decoration: none;
+  }
+
+  footer a:hover { text-decoration: underline; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+  .card:nth-child(5) { animation-delay: 0.33s; }
+  .card:nth-child(6) { animation-delay: 0.40s; }
+
+  /* PROGRESS */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), #34d399);
+    width: 0%;
+    transition: width 0.3s ease;
+    z-index: 100;
+  }
+
+  /* COUNTER */
+  .counter-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .counter-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 26px; }
+    .meta-row { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="container">
+  <header>
+    <div class="chip">Trabalho Acadêmico</div>
+    <h1>Therac-25<br><span>1990 → 2000</span></h1>
+    <p class="hero-desc">Perguntas para entender o conteúdo do slide de forma aberta e simples. Clique em cada carta para revelar a resposta.</p>
+    <div class="meta-row">
+      <span>📡 6 perguntas</span>
+      <span>🔬 Segurança de Software</span>
+      <span>🏛 ADS · Ciência da Computação</span>
+    </div>
+  </header>
+
+  <div class="counter-box">
+    <div>
+      <div style="font-size:11px;letter-spacing:1px;margin-bottom:4px;">RESPONDIDAS</div>
+      <div><span class="counter-val" id="count">0</span> <span style="font-size:13px;">/&nbsp;6</span></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;letter-spacing:1px;margin-bottom:4px;">PROGRESSO</div>
+      <div id="pct" style="font-size:22px;font-weight:700;color:var(--muted);">0%</div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1 -->
+  <div class="section-label green">✦ Lados positivos</div>
+
+  <div class="card green">
+    <div class="q-row">
+      <div class="q-badge green">01</div>
+      <div class="q-text">Se o Therac-25 dependesse da internet, de que forma ele poderia deixar de dar doses erradas de radiação nos pacientes?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        Com uma interface mais clara e com botões, <strong>o médico veria um aviso antes de confirmar a dose</strong> — assim ninguém apertaria o botão errado sem perceber. É como quando o celular pergunta <em>"tem certeza que quer deletar?"</em> antes de apagar uma foto.
+      </div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="q-row">
+      <div class="q-badge green">02</div>
+      <div class="q-text">Por que seria mais fácil consertar os erros do programa se a máquina pudesse ser atualizada pela internet?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        Quando um videogame tem bug, a empresa manda uma atualização e pronto — <strong>sem precisar trocar peças</strong>. Com o Therac-25 original, cada conserto exigia alguém indo pessoalmente ao hospital mexer no hardware. Pela internet, seria só baixar e instalar.
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2 -->
+  <div class="section-label red">✦ Lados negativos</div>
+
+  <div class="card red">
+    <div class="q-row">
+      <div class="q-badge red">03</div>
+      <div class="q-text">O que poderia acontecer se alguém mal-intencionado invadisse a máquina pela internet e mudasse a dose de radiação durante o tratamento?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        Seria como <strong>alguém trocando os ingredientes de um remédio sem ninguém perceber</strong>. O paciente acharia que está tomando a dose certa, mas estaria recebendo muito mais — e radiação em excesso pode machucar gravemente.
+      </div>
+    </div>
+  </div>
+
+  <div class="card red">
+    <div class="q-row">
+      <div class="q-badge red">04</div>
+      <div class="q-text">O que é "falsa sensação de segurança" e por que uma tela bonita poderia enganar os médicos que usam a máquina?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        Imagine um carro moderno cheio de luzes, mas com <strong>o freio ruim</strong>. O motorista confia demais na aparência e fica menos atento. Com o Therac-25, uma interface bonita poderia fazer os médicos pararem de conferir os dados com cuidado — e isso é perigoso.
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3 -->
+  <div class="section-label purple">✦ Minha visão</div>
+
+  <div class="card purple">
+    <div class="q-row">
+      <div class="q-badge purple">05</div>
+      <div class="q-text">Se você pudesse melhorar apenas uma coisa no Therac-25, o que escolheria — a interface mais fácil de usar, ou uma proteção maior contra ataques? Por quê?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        <strong>Não existe resposta errada!</strong> O slide sugere que seria mais fácil de usar com internet, mas os riscos de segurança seriam muito maiores. Esse dilema <em>usabilidade vs. segurança</em> é exatamente o tipo de escolha que engenheiros de software enfrentam na vida real.
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 4 -->
+  <div class="section-label amber">✦ Conclusão final</div>
+
+  <div class="card amber">
+    <div class="q-row">
+      <div class="q-badge amber">06</div>
+      <div class="q-text">Em uma frase simples: o Therac-25 com internet seria uma ideia boa ou ruim? Qual é a conclusão do slide?</div>
+    </div>
+    <button class="reveal-btn" onclick="toggle(this)">
+      <span>Ver resposta</span>
+      <span class="btn-arrow">▶</span>
+    </button>
+    <div class="answer">
+      <div class="answer-inner">
+        Seria <strong>mais fácil de usar e de corrigir</strong> — mas ficaria muito mais vulnerável a ataques e mais difícil de programar com segurança. Ou seja: melhorou em usabilidade, mas <strong>criou riscos novos e sérios</strong> que não existiam antes.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <footer>
+    <div style="margin-bottom:8px;">THERAC-25 · ANÁLISE ACADÊMICA · ADS</div>
+    <div>Feito com ♥ — <a href="https://github.com/TagVictor" target="_blank">@TagVictor</a></div>
+  </footer>
+</div>
+
+<script>
+  let opened = new Set();
+
+  function toggle(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+
+    answer.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+    btn.querySelector('span').textContent = isOpen ? 'Ver resposta' : 'Esconder resposta';
+
+    const card = btn.closest('.card');
+    const idx = [...document.querySelectorAll('.card')].indexOf(card);
+    if (!isOpen) opened.add(idx); else opened.delete(idx);
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = 6;
+    const done = opened.size;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('count').textContent = done;
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('progress').style.width = pct + '%';
+    if (pct === 100) document.getElementById('pct').style.color = 'var(--green)';
+  }
+</script>
+</body>
+</html>
